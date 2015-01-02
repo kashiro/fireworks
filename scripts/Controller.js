@@ -46,29 +46,37 @@
 
   Controller.prototype.init = function(){
     var self = this;
+    // 打ち上げ中の花火(Bomb)
     self.readyBombs = [];
+    // 打ち上げ後爆発した花火(Bomb)
     self.explodedBombs = [];
+    // 爆発して飛散した破片の花火(Particle)
     self.particles = [];
 
+    // はじめにnBomsの数だけ花火を打ち上げる準備
     for(var i = 0; i < nBombs; i++){
       self.readyBombs.push(new Bomb());
     }
   }
-  Controller.prototype.update = function(){
+  Controller.prototype.updateExplodedBombs = function(){
     var self = this;
     var aliveBombs = [];
     while(self.explodedBombs.length > 0){
       var bomb = self.explodedBombs.shift();
+      // TODO
       bomb.update();
       if(bomb.alive){
         aliveBombs.push(bomb);
       }
     }
     self.explodedBombs = aliveBombs;
-
+  }
+  Controller.prototype.updateReadyBombs = function(){
+    var self = this;
     var notExplodedBombs = [];
     while(self.readyBombs.length > 0){
       var bomb = self.readyBombs.shift();
+      // 爆発するまで徐々に上昇
       bomb.update(self.particles);
       if(bomb.hasExploded){
         self.explodedBombs.push(bomb);
@@ -77,7 +85,9 @@
       }
     }
     self.readyBombs = notExplodedBombs;
-
+  }
+  Controller.prototype.updateParticles = function(){
+    var self = this;
     var aliveParticles = [];
     while(self.particles.length > 0){
       var particle = self.particles.shift();
@@ -88,9 +98,23 @@
     }
     self.particles = aliveParticles;
   }
+  Controller.prototype.update = function(){
+    var self = this;
+    // 爆発した花火を更新
+    // はじめの花火が爆発するまで何もしない
+    this.updateExplodedBombs();
+    // 爆発するまでの花火を更新
+    this.updateReadyBombs();
+    // 爆発して飛散した破片を更新
+    this.updateParticles();
+  }
   Controller.prototype.draw = function(){
     var self = this;
     self.ctx.beginPath();
+
+    // 描画毎に黒のalpha0.1を塗り重ねていく
+    // これによって、オブジェクトが徐々にフェードしていく効果になる
+    // 試しに0.1を0にすると残像が消えずに残る
     self.ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'; // Ghostly effect
     self.ctx.fillRect(0, 0, self.canvas.width, self.canvas.height);
 
@@ -111,6 +135,7 @@
     self.update();
     self.draw();
 
+    // アニメーション関数実行毎に5%の確立で花火が増える
     if(Math.random() * 100 < percentChanceNewBomb) {
       self.readyBombs.push(new Bomb());
     }
