@@ -37,18 +37,25 @@
     var self = this;
     self.hasExploded = true;
     // 爆発時の破片(Particle)を準備
-    // n(10-30)のランダムをe(3-5)回繰り返して個数を算出(30-150)
-    // eが爆発時に生成される円の数（3の場合3重の円になる）
-    // nが1円あたりの破片の数
+    // n(10-30)のランダムをe(3-5)回繰り返して破片の総個数を算出(30-150)
     var e = 3 + Math.floor(Math.random() * 3); // 3 - 5
     for(var j = 0; j < e; j++){
       var n = 10 + Math.floor(Math.random() * 21); // 10 - 30
-      // 1円毎の移動スピード
-      var speed = minParticleV + Math.random() * deltaParticleV;
+      // 破片が移動する際の花火本体からの距離(半径)になる値
+      var speed = minParticleV + Math.random() * deltaParticleV; //  5 - 9
+      // 半径1の弧の長さ(2*Math.PI)を1radianと呼ぶ
+      // degreeでいうと、つまり360度をn当分したという意味になる
       var deltaAngle = 2 * Math.PI / n;
+      // 破片で当分した角度を最大値としてランダムな角度を算出しそれが最低角度に
+      // 仮にnが10の場合、35度を最大値としたランダムの角度
       var initialAngle = Math.random() * deltaAngle;
       for(var i = 0; i < n; i++){
-        particlesVector.push(new Particle(self, i * deltaAngle + initialAngle, speed));
+        // 破片が飛び散る角度をラジアンで表現
+        // n当分した角度にランダムな最低角度を加算して角度（ラジアン）とする
+        //var radian = i * deltaAngle + initialAngle;
+        // 破片をバラけさせる為に細かい計算があるが見た目上、下記でも問題ない
+        var radian = i * deltaAngle;
+        particlesVector.push(new Particle(self, radian, speed));
       }
     }
   }

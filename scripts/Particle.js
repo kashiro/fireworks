@@ -29,6 +29,7 @@
   Particle.prototype.draw = function(ctx){
     var self = this;
     ctx.beginPath();
+    // 円を描画
     ctx.arc(self.px, self.py, self.radius, 0, Math.PI * 2, false);
     ctx.fillStyle = self.color.style;
     ctx.lineWidth = 1;
